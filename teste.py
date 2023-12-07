@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 
 def main():
     # Informações de conexão SSH
-    hostname = 'apps.hisplp.org'
-    username = 'nelio'
-    password = 'ibrahimovic'
+    hostname = ''
+    username = ''
+    password = ''
     port = 384
 
     client = paramiko.client.SSHClient()

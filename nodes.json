@@ -2,7 +2,8 @@
   {
     "hostname": "apps.hisplp.org",
     "username": "nelio",
-    "password": "ibrahimovic",
-    "port": 384
+    "password": "Ibrahimovic",
+    "port": 384,
+    "container_name": "stpapi"
   }
 ]

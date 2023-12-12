@@ -11,7 +11,7 @@ def backup_user_databases(container_name, backup_dir):
     try:
         # Verifica se o MySQL está instalado e ativo
         subprocess.run(["lxc", "exec", container_name, "--", "systemctl", "is-active", "mysql"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        logging.info("-----------------------------------------")
+        logging.info("----------------------------------------")
         logging.info(f"Fazendo backup de bases de dados no contêiner {container_name}...")
 
         # Lista as bases de dados do usuário
@@ -22,7 +22,8 @@ def backup_user_databases(container_name, backup_dir):
         for db in user_databases:
             current_datetime = datetime.now().strftime('%Y%m%d_%H%M%S')
             backup_file = os.path.join(backup_dir, f"bk_{db}_{current_datetime}.sql")
-            subprocess.run(["lxc", "exec", container_name, "--", "mysqldump", db, f"> {backup_file}"], check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            with open(backup_file, 'w') as f:
+                subprocess.Popen(["lxc", "exec", container_name, "--", "mysqldump", db], stdout=f, stderr=subprocess.PIPE, universal_newlines=True)
             logging.info(f"Backup da base de dados {db} concluído. Arquivo: {backup_file}")
 
     except subprocess.CalledProcessError as e:

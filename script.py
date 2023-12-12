@@ -11,7 +11,7 @@ def backup_user_databases(container_name, backup_dir):
     try:
         # Verifica se o MySQL está instalado e ativo
         subprocess.run(["lxc", "exec", container_name, "--", "systemctl", "is-active", "mysql"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        logging.info("----------------------------------------")
+        logging.info("-----------------------------------------")
         logging.info(f"Fazendo backup de bases de dados no contêiner {container_name}...")
 
         # Lista as bases de dados do usuário

@@ -2,14 +2,17 @@ import subprocess
 import json
 import os
 from datetime import datetime
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 # Função para fazer backup de bases de dados em um contêiner MySQL
 def backup_user_databases(container_name, backup_dir):
     try:
         # Verifica se o MySQL está instalado e ativo
         subprocess.run(["lxc", "exec", container_name, "--", "systemctl", "is-active", "mysql"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print("----------------------------------------")
-        print(f"Fazendo backup de bases de dados no contêiner {container_name}...")
+        logging.info("----------------------------------------")
+        logging.info(f"Fazendo backup de bases de dados no contêiner {container_name}...")
 
         # Lista as bases de dados do usuário
         user_databases_raw = subprocess.run(["lxc", "exec", container_name, "--", "mysql", "-sN", "-e", "SHOW DATABASES;"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -17,17 +20,19 @@ def backup_user_databases(container_name, backup_dir):
 
         # Faz backup de cada base de dados do usuário
         for db in user_databases:
-            current_datetime = datetime.now().strftime('%d%m%Y_%H%M%S')
+            current_datetime = datetime.now().strftime('%Y%m%d_%H%M%S')
             backup_file = os.path.join(backup_dir, f"bk_{db}_{current_datetime}.sql")
-            subprocess.run(["lxc", "exec", container_name, "--", "mysqldump", db], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-            print(f"Backup da base de dados {db} concluído. Arquivo: {backup_file}")
-    except subprocess.CalledProcessError:
-        pass  # MySQL não está instalado ou ativo, não faz nada
+            subprocess.run(["lxc", "exec", container_name, "--", "mysqldump", db, f"> {backup_file}"], check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            logging.info(f"Backup da base de dados {db} concluído. Arquivo: {backup_file}")
+
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Erro durante o backup no contêiner {container_name}: {e}")
 
 # Função principal
 def main():
     # Obtém nomes dos contêineres que têm o MySQL instalado e ativo
-    containers_raw = subprocess.run(["lxc", "list", "--format", "json"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    containers_raw = subprocess.run(["lxc", "list", "--format", "json"], check=True, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
     containers_data = json.loads(containers_raw.stdout.decode("utf-8"))
     containers = [container["name"] for container in containers_data if container["status"] == "Running"]
 
@@ -41,8 +46,8 @@ def main():
     for container_name in containers:
         backup_user_databases(container_name, backup_dir)
 
-    print("----------------------------------------")
+    logging.info("----------------------------------------")
 
-# Chama a função main se este script for o programa principal
+# Chama a função principal
 if __name__ == "__main__":
     main()

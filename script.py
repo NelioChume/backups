@@ -46,7 +46,7 @@ def backup_databases_in_containers():
                     logging.info(f"Backup da base de dados {db} concluído. Arquivo: {backup_file}")
 
             except subprocess.CalledProcessError as e:
-                logging.error(f"Erro durante o backup no contêiner {container_name}: {e}")
+                pass
 
         logging.info("----------------------------------------")
 

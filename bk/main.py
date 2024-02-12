@@ -43,7 +43,7 @@ def main():
 
 def copy_backups_to_remote():
     try:
-        subprocess.run(["rsync", "-av", local_backup_dir + "/", "usuario@servidor_remoto:" + remote_backup_dir])
+        subprocess.run(["rsync", "-av", local_backup_dir + "/", "vsitoe@192.168.68.200:" + remote_backup_dir])
         print("Backups copiados com sucesso para o servidor remoto.")
     except subprocess.CalledProcessError:
         print("Erro ao copiar backups para o servidor remoto.")

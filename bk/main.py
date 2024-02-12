@@ -1,12 +1,13 @@
 import os
 import subprocess
 from datetime import datetime
+from dotenv import load_dotenv
 
-# Diretório onde os backups serão armazenados localmente
-local_backup_dir = "/caminho/para/diretorio/local/backups"
+load_dotenv()
 
-# Diretório onde os backups serão copiados para o servidor remoto
-remote_backup_dir = "/caminho/para/diretorio/remoto/backups"
+# Diretório onde os backups serão armazenados localmente e remotamente
+local_backup_dir = os.getenv('LOCAL_BACKUP_DIR')
+remote_backup_dir = os.getenv('REMOTE_BACKUP_DIR')
 
 # Lista de containers LXC/LXD para excluir
 excluded_containers = ["postgres", "monitor", "proxy"]

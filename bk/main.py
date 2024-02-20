@@ -55,6 +55,7 @@ def main():
         for container in containers:
             if container and container not in excluded_containers:
                 backup_mysql_databases(container)
+                backup_postgres_databases(container)
     except subprocess.CalledProcessError:
         print("Erro ao listar os containers.")
 

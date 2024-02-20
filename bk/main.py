@@ -15,6 +15,23 @@ excluded_containers = ["postgres", "monitor", "proxy"]
 # Lista de bancos de dados MySQL para excluir
 excluded_mysql_databases = ['information_schema', 'mysql', 'performance_schema', 'sys']
 
+def backup_postgres_databases(container_name):
+    try:
+        output = subprocess.check_output(["lxc", "exec", container_name, "--", "bash", "-c",
+                                          "psql -U postgres -l | awk '{print $1}' | grep -vE '(template0|template1|postgres)'"]).decode()
+        databases = output.split("\n")[2:-1]  # Remove as primeiras duas linhas e a última linha
+
+        for db in databases:
+            timestamp = datetime.now().strftime("%d-%m-%Y")
+            backup_file = f"bk_{db}_{timestamp}.sql.gz"
+            backup_path = os.path.join(local_backup_dir, backup_file)
+            subprocess.run(["lxc", "exec", container_name, "--", "bash", "-c",
+                            f"pg_dump -U postgres {db} | gzip > {backup_path}"])
+            print(f"Backup do banco de dados {db} concluído com sucesso.")
+    except subprocess.CalledProcessError:
+        print(f"Erro ao fazer backup do banco de dados no container {container_name}.")
+
+
 def backup_mysql_databases(container_name):
     try:
         output = subprocess.check_output(["lxc", "exec", container_name, "--", "bash", "-c",
